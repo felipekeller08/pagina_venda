@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>A Jornada do Lar — Leticia Weirich</title>
+<meta name="theme-color" content="#FFD9E8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@300;400;600;800&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- GSAP -->
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/TextPlugin.min.js"></script>
+
+<!-- Lenis -->
+<script defer src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.38/bundled/lenis.min.js"></script>
+
+<!-- Swiper -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+<script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<style>
+:root{
+  --rosa:#FFD9E8; --rosa2:#F9E6EB; --rosa3:#FFF5F8;
+  --ink:#0f172a; --ink2:#475569; --panel:#ffffff; --glow:rgba(255,217,232,.28);
+}
+:root.rose-dark{ --rosa:#E8B3C9; --rosa2:#EAAFC7; --rosa3:#2a1f24; --ink:#f8fafc; --ink2:#cbd5e1; --panel:#20161b; --glow:rgba(255,170,210,.22);} 
+*{box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:var(--panel);color:var(--ink);overflow-x:hidden}
+.font-display{font-family:'Playfair Display',serif}
+.btn{border-radius:9999px;padding:.95rem 1.25rem;font-weight:800;display:inline-flex;align-items:center;gap:.6rem;transition:transform .18s, filter .18s, box-shadow .18s}
+.btn-primary{background:linear-gradient(135deg,var(--rosa),var(--rosa2));color:#3b2d3a;box-shadow:0 14px 34px rgba(255,120,170,.22)}
+.btn-primary:hover{transform:translateY(-1px);filter:brightness(.98)}
+.btn-outline{border:1px solid #f2c9db;color:#a24b72;background:rgba(255,255,255,.85)}
+.glass{backdrop-filter: blur(12px); background: rgba(255,255,255,.55)}
+.shadow-soft{box-shadow:0 16px 48px rgba(0,0,0,.08)}
+.nav-link{position:relative}
+.nav-link::after{content:"";position:absolute;left:0;bottom:-6px;height:2px;width:0;background:var(--rosa);transition:width .25s}
+.nav-link:hover::after{width:100%}
+#progress{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,#ff9ac3,var(--rosa));z-index:80}
+.sticky-bar{transform:translateY(120%);transition:transform .35s ease}
+.sticky-bar.show{transform:translateY(0)}
+.bloom{position:fixed;inset:0;pointer-events:none;background:radial-gradient(60vw 60vh at 70% 10%, var(--glow), transparent 60%);mix-blend:screen;z-index:-1}
+.keyline{height:1px;background:linear-gradient(90deg,transparent,#f7cfe0,transparent)}
+.u{background-image:linear-gradient(transparent 70%, rgba(255,217,232,.85) 0%);background-size:100% 1.15em;background-position:0 .2em;background-repeat:no-repeat;padding:0 .2em}
+.accordion-content{max-height:0;overflow:hidden;transition:max-height .35s}
+.accordion.open .accordion-content{max-height:620px}
+.grid-border>*{border-right:1px solid #f6d5e4}
+.grid-border>*:nth-child(3n){border-right:none}
+@media(max-width:768px){.grid-border>*{border-right:none}}
+.shimmer{position:relative;overflow:hidden}
+.shimmer::after{content:"";position:absolute;inset:-120% -60% auto auto;width:45%;height:200%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.55),transparent);transform:rotate(20deg);animation:shine 3.8s linear infinite}
+@keyframes shine{to{transform:translateX(-140%) rotate(20deg)}}
+#pre{position:fixed;inset:0;background:linear-gradient(180deg,#fff,var(--rosa3));display:grid;place-items:center;z-index:100}
+.spinner{width:56px;height:56px;border-radius:50%;border:3px solid var(--rosa);border-top-color:#a24b72;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#overlay{position:fixed;inset:0;pointer-events:none;background:radial-gradient(80vw 80vh at 50% 50%, rgba(255,217,232,.18), rgba(0,0,0,.25));opacity:0;z-index:90;transition:opacity .35s ease}
+
+/* ====== REVEAL ====== */
+.reveal{opacity:0; transform:translateY(24px); will-change:transform,opacity; transition:opacity .7s ease, transform .7s ease;}
+.reveal.reveal--in{opacity:1; transform:none}
+.reveal-left{opacity:0; transform:translateX(-32px); will-change:transform,opacity; transition:opacity .7s ease, transform .7s ease}
+.reveal-left.reveal--in{opacity:1; transform:none}
+.reveal-right{opacity:0; transform:translateX(32px); will-change:transform,opacity; transition:opacity .7s ease, transform .7s ease}
+.reveal-right.reveal--in{opacity:1; transform:none}
+.reveal[data-delay]{transition-delay:var(--d, 0ms)}
+.reveal-left[data-delay]{transition-delay:var(--d, 0ms)}
+.reveal-right[data-delay]{transition-delay:var(--d, 0ms)}
+@media (prefers-reduced-motion: reduce){
+  .reveal, .reveal-left, .reveal-right{opacity:1 !important; transform:none !important; transition:none !important}
+}
+
+/* ====== MOBILE NAV ====== */
+#mobileMenu{transition:transform .28s ease, opacity .28s ease}
+#navBackdrop{position:fixed;inset:0;display:none;background:transparent;z-index:40}
+#navBackdrop.show{display:block}
+#mobileMenuPanel{position:fixed;top:64px;right:0;left:0;z-index:50}
+header.menu-open{background:#fff !important; backdrop-filter:none !important}
+#menuBtn{color:#1f2937}
+#menuBtn .badge{position:absolute;inset:-2px;border-radius:9999px;box-shadow:0 0 0 2px rgba(255,255,255,.9)}
+</style>
+</head>
+
+<body>
+<div id="pre"><div class="spinner"></div><p class="mt-4 text-sm text-slate-500">Preparando sua experiência…</p></div>
+<div id="overlay"></div>
+<div id="progress"></div>
+<canvas id="bg3d" class="fixed inset-0 -z-10"></canvas>
+<div class="bloom"></div>
+
+<header class="fixed top-0 inset-x-0 z-50 glass reveal">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="font-display text-xl md:text-2xl italic text-pink-600">Leticia Weirich</a>
+
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      <a class="nav-link hover:text-pink-600" href="#livro">Livro</a>
+      <a class="nav-link hover:text-pink-600" href="#scrolly">Experiência</a>
+      <a class="nav-link hover:text-pink-600" href="#bonus">Bônus</a>
+      <a class="nav-link hover:text-pink-600" href="#conteudo">Conteúdo</a>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a href="#checkout" class="hidden md:inline-flex btn btn-primary shimmer">Comprar agora</a>
+
+      <!-- Hamburguer / X -->
+      <button id="menuBtn" class="relative md:hidden p-2 rounded-full bg-white/80 ring-1 ring-black/10 hover:bg-white" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span class="badge" aria-hidden="true"></span>
+        <svg id="iconHamb" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+        <svg id="iconClose" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2" class="hidden">
+          <path d="M6 6l12 12M18 6l-12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Backdrop + Painel Mobile (branco) -->
+  <div id="navBackdrop" role="button" aria-label="Fechar menu"></div>
+  <div id="mobileMenuPanel" class="md:hidden">
+    <nav id="mobileMenu" class="hidden opacity-0 -translate-y-3 bg-white border-t border-pink-100">
+      <ul class="px-4 py-4 grid gap-2 text-sm">
+        <li><a class="block py-2 hover:text-pink-600" href="#livro">Livro</a></li>
+        <li><a class="block py-2 hover:text-pink-600" href="#scrolly">Experiência</a></li>
+        <li><a class="block py-2 hover:text-pink-600" href="#bonus">Bônus</a></li>
+        <li><a class="block py-2 hover:text-pink-600" href="#conteudo">Conteúdo</a></li>
+        <li><a class="btn btn-primary mt-2 w-full justify-center" href="#checkout">Comprar agora</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="top" class="pt-24 md:pt-28">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <div class="reveal" data-delay style="--d:120ms">
+        <span class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-pink-700 bg-pink-50 px-3 py-1 rounded-full">Novo lançamento</span>
+        <h1 class="mt-4 text-4xl md:text-5xl font-display font-bold leading-tight">
+          <span class="u">Transforme seu lar</span> em um refúgio de paz e propósito.
+        </h1>
+        <p class="mt-4 text-lg text-slate-600 max-w-xl">Sou <strong>Leticia Weirich</strong>, psicóloga cristã e mentora do lar. Rotina simples, fé prática e um ambiente que cura.</p>
+        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+          <a href="#livro" class="btn btn-primary shimmer">Conheça o livro</a>
+          <a href="#checkout" class="btn btn-outline">Comprar agora</a>
+        </div>
+        <div class="mt-6 flex items-center gap-4 text-sm text-slate-500">
+          <span>⭐️⭐️⭐️⭐️⭐️ 4.9/5</span><span>+1.200 leitoras</span><span>Envio em 3 dias úteis</span>
+        </div>
+      </div>
+      <div class="relative reveal-right">
+        <div class="relative bg-white/70 backdrop-blur-xl p-2 rounded-3xl shadow-soft">
+          <img src="/img/hero.png" alt="Retrato de Leticia Weirich" class="w-full rounded-2xl object-cover h-[560px]">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="keyline"></div>
+</section>
+
+<!-- VENDAS -->
+<section id="livro" class="py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-10 items-center">
+      <div class="reveal-left">
+        <div class="bg-white rounded-2xl p-6 shadow-soft shimmer">
+          <img src="/img/livro.png" alt="Livro De Dentro Para Fora" class="w-full rounded-xl object-cover">
+        </div>
+        <div class="mt-4 text-sm text-slate-500 flex flex-wrap items-center gap-3">
+          <span class="inline-block px-3 py-1 rounded-full bg-pink-50 text-pink-700">Capa dura</span>
+          <span class="inline-block px-3 py-1 rounded-full bg-pink-50 text-pink-700">240 páginas</span>
+          <span class="inline-block px-3 py-1 rounded-full bg-pink-50 text-pink-700">E-book incluso</span>
+        </div>
+      </div>
+      <div class="reveal" data-delay style="--d:120ms">
+        <h2 class="text-3xl md:text-4xl font-display font-bold">Meu novo livro: <span class="text-pink-600">De Dentro Para Fora</span></h2>
+        <p class="mt-3 text-lg text-slate-600">Guia prático e espiritual para viver o propósito de Deus dentro de casa: amor, ordem e fé em cada página.</p>
+        <ul class="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
+          <li class="flex items-start gap-2"><span class="text-pink-600">✔</span> Rotinas simples que geram ordem</li>
+          <li class="flex items-start gap-2"><span class="text-pink-600">✔</span> Comunicação com amor e limites</li>
+          <li class="flex items-start gap-2"><span class="text-pink-600">✔</span> Devocionais curtos e práticos</li>
+          <li class="flex items-start gap-2"><span class="text-pink-600">✔</span> Exercícios semanais aplicáveis</li>
+        </ul>
+        <div class="mt-8 glass rounded-2xl p-6 shadow-soft reveal" data-delay style="--d:220ms">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <p class="text-sm text-slate-400 line-through">de R$ 109,90</p>
+              <p class="text-3xl font-extrabold text-slate-900">R$ <span id="price">79,90</span></p>
+              <p class="text-xs text-slate-500">ou 3x de R$ 26,63 • Pix/Cartão</p>
+            </div>
+            <div class="flex gap-2">
+              <a href="#checkout" class="btn btn-primary">Comprar versão física</a>
+              <a href="#checkout" class="btn btn-outline">Comprar e-book</a>
+            </div>
+          </div>
+          <p class="mt-3 text-xs text-slate-500">Sem amostra gratuita. Pagamento seguro.</p>
+        </div>
+        <div class="mt-4 text-sm text-pink-700">Lote atual encerra em <span class="font-bold" id="cd">--:--:--</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCROLLYTELLING -->
+<section id="scrolly" class="py-16 bg-gradient-to-b from-pink-50/60 via-white to-white">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <h3 class="text-3xl md:text-4xl font-display font-bold reveal">Veja o que Você vai encontrar</h3>
+    <p class="text-slate-600 mt-2 reveal" data-delay style="--d:120ms">Aprendizados e inspirações para o seu lar.</p>
+  </div>
+  <div class="max-w-6xl mx-auto px-4 mt-10 grid md:grid-cols-3 gap-6">
+    <article class="reveal group rounded-3xl bg-white ring-1 ring-pink-100/70 shadow-soft overflow-hidden">
+      <div class="p-5 pb-0">
+        <span class="inline-flex items-center text-[10px] uppercase tracking-[.18em] text-pink-700/90 bg-pink-50 px-3 py-1 rounded-full">Capítulo 1</span>
+        <h4 class="mt-3 text-xl font-display font-bold">Paz</h4>
+        <p class="mt-2 text-sm text-slate-600">Silêncio, oração e checklist para respirar a casa.</p>
+      </div>
+      <img class="mt-5 w-[92%] mx-auto mb-5 rounded-2xl object-cover" src="/img/paz.png" alt="Paz">
+    </article>
+    <article class="reveal-left group rounded-3xl bg-white ring-1 ring-pink-100/70 shadow-soft overflow-hidden">
+      <div class="p-5 pb-0">
+        <span class="inline-flex items-center text-[10px] uppercase tracking-[.18em] text-pink-700/90 bg-pink-50 px-3 py-1 rounded-full">Capítulo 2</span>
+        <h4 class="mt-3 text-xl font-display font-bold">Ordem</h4>
+        <p class="mt-2 text-sm text-slate-600">Rotinas simples e limites saudáveis.</p>
+      </div>
+      <img class="mt-5 w-[92%] mx-auto mb-5 rounded-2xl object-cover" src="/img/ordem.png" alt="Ordem">
+    </article>
+    <article class="reveal-right group rounded-3xl bg-white ring-1 ring-pink-100/70 shadow-soft overflow-hidden">
+      <div class="p-5 pb-0">
+        <span class="inline-flex items-center text-[10px] uppercase tracking-[.18em] text-pink-700/90 bg-pink-50 px-3 py-1 rounded-full">Capítulo 3</span>
+        <h4 class="mt-3 text-xl font-display font-bold">Propósito</h4>
+        <p class="mt-2 text-sm text-slate-600">Fé que orienta decisões e aproxima a família de Deus.</p>
+      </div>
+      <img class="mt-5 w-[92%] mx-auto mb-5 rounded-2xl object-cover" src="/img/proposito.png" alt="Propósito">
+    </article>
+  </div>
+</section>
+
+<!-- BÔNUS -->
+<section id="bonus" class="py-16 bg-pink-50/60">
+  <div class="max-w-7xl mx-auto px-4">
+    <h3 class="text-3xl md:text-4xl font-display font-bold text-center reveal">Bônus exclusivos</h3>
+    <div class="mt-10 grid md:grid-cols-3 gap-6" id="bonusGrid">
+      <div class="bg-white rounded-2xl p-6 shadow-soft reveal" data-delay style="--d:60ms"><h4 class="font-semibold">Planner do Lar (PDF)</h4><p class="text-slate-600 text-sm mt-2">Calendário, rotinas e listas editáveis.</p></div>
+      <div class="bg-white rounded-2xl p-6 shadow-soft reveal" data-delay style="--d:140ms"><h4 class="font-semibold">Devocional 7 dias</h4><p class="text-slate-600 text-sm mt-2">Reflexões curtas para iniciar.</p></div>
+      <div class="bg-white rounded-2xl p-6 shadow-soft reveal" data-delay style="--d:220ms"><h4 class="font-semibold">Checklist de Rotina</h4><p class="text-slate-600 text-sm mt-2">Tarefas simples para manter tudo em ordem.</p></div>
+    </div>
+    <div class="text-center mt-8 reveal"><a href="#checkout" class="btn btn-primary shimmer">Garantir exemplar com bônus</a></div>
+  </div>
+</section>
+
+<!-- CONTEÚDO / OBJETIVO + AUTORA -->
+<section id="conteudo" class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid lg:grid-cols-2 gap-10 items-center">
+      <div class="reveal">
+        <span class="inline-flex items-center text-[10px] uppercase tracking-[.18em] text-pink-700/90 bg-pink-50 px-3 py-1 rounded-full">Conteúdo</span>
+        <h3 class="mt-3 text-3xl md:text-4xl font-display font-bold">O objetivo do livro</h3>
+        <p class="mt-3 text-slate-600">Ajudar famílias a <strong>organizar a rotina</strong>, cultivar <strong>paz</strong> no ambiente e alinhar decisões ao <strong>propósito</strong> de Deus de forma prática e sustentável.</p>
+        <ul class="mt-5 grid sm:grid-cols-2 gap-2 text-sm text-slate-700">
+          <li>✔ Rotinas semanais simples</li>
+          <li>✔ Devocionais curtos</li>
+          <li>✔ Exercícios de comunicação</li>
+          <li>✔ Checklists de organização</li>
+        </ul>
+
+        <div class="mt-8 p-5 rounded-2xl bg-pink-50/60 ring-1 ring-pink-100 reveal" data-delay style="--d:140ms">
+          <h4 class="font-display font-bold text-xl">Sobre a autora</h4>
+          <p class="mt-2 text-slate-600">Leticia Weirich é psicóloga cristã e mentora do lar. Atua ajudando mulheres a construir casas com ordem, amor e fé — unindo práticas simples a princípios bíblicos.</p>
+        </div>
+      </div>
+
+      <div class="reveal-right">
+        <div class="bg-white rounded-3xl shadow-soft p-2">
+          <!-- Substitua /img/autora_tablet.png pela foto escolhida -->
+          <img src="/img/autora_tablet.png" alt="Leticia Weirich" class="w-full h-[520px] object-cover rounded-2xl">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHECKOUT -->
+<section id="checkout" class="py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="bg-white rounded-3xl shadow-soft overflow-hidden">
+      <div class="grid lg:grid-cols-2">
+        <div class="p-8 lg:p-10 bg-gradient-to-b from-white to-pink-50/60 reveal-left">
+          <h3 class="text-2xl font-display font-bold">Finalize sua compra</h3>
+          <div class="mt-6 flex gap-4">
+            <img src="/img/livro.png" class="w-24 h-32 rounded-xl object-cover" alt="Capa do livro">
+            <div>
+              <p class="font-semibold">De Dentro Para Fora</p>
+              <p class="text-sm text-slate-500">Físico + E-book</p>
+              <p class="mt-1 text-2xl font-extrabold">R$ 79,90</p>
+            </div>
+          </div>
+          <ul class="mt-6 space-y-2 text-sm text-slate-600">
+            <li>✔ Planner do Lar</li><li>✔ Devocional 7 dias</li><li>✔ Checklist de Rotina</li><li>✔ Garantia de 7 dias</li>
+          </ul>
+          <p class="mt-4 text-xs text-slate-500">*Frete calculado no próximo passo. Pagamento 100% seguro.</p>
+        </div>
+        <div class="p-8 lg:p-10 reveal-right">
+          <form id="payForm" class="grid grid-cols-1 gap-4">
+            <div class="grid md:grid-cols-2 gap-4">
+              <input required name="name" autocomplete="name" class="w-full rounded-xl border border-pink-100 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-200" placeholder="Nome completo"/>
+              <input required name="email" type="email" autocomplete="email" class="w-full rounded-xl border border-pink-100 px-4 py-3 focus:ring-2 focus:ring-pink-200" placeholder="E-mail"/>
+            </div>
+            <input required name="phone" autocomplete="tel" class="w-full rounded-xl border border-pink-100 px-4 py-3 focus:ring-2 focus:ring-pink-200" placeholder="Telefone (WhatsApp)"/>
+            <div class="grid md:grid-cols-2 gap-4">
+              <input name="city" autocomplete="address-level2" class="w-full rounded-xl border border-pink-100 px-4 py-3" placeholder="Cidade"/>
+              <input name="uf" autocomplete="address-level1" class="w-full rounded-xl border border-pink-100 px-4 py-3" placeholder="UF"/>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              <select name="pay" class="w-full rounded-xl border border-pink-100 px-4 py-3"><option>Pix</option><option>Cartão de crédito</option><option>Boleto</option></select>
+              <select name="pack" class="w-full rounded-xl border border-pink-100 px-4 py-3"><option>Físico + E-book</option><option>Apenas E-book</option></select>
+            </div>
+            <input type="hidden" name="utm" id="utmField"/>
+            <button id="pay" class="btn btn-primary w-full shimmer">Pagar e receber meu livro</button>
+            <p class="text-xs text-slate-400 text-center">Ao continuar, você concorda com os Termos e a Política de Privacidade.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-sm text-slate-500 mt-4 reveal">WhatsApp: <a class="text-pink-600 hover:underline" href="https://wa.me/5554999999999">+55 54 99999-9999</a></p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-gray-100 py-14 mt-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-10">
+      <div>
+        <p class="text-2xl font-display italic text-pink-600 mb-2">Leticia Weirich</p>
+        <p class="text-slate-600 text-sm">Psicóloga cristã e mentora do lar. Conteúdo e recursos para uma casa com paz, ordem e propósito.</p>
+        <div class="flex gap-3 mt-4">
+          <a aria-label="Instagram" href="#" class="p-2 rounded-full bg-white shadow hover:shadow-md transition"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 6a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm6.5-.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5z"/></svg></a>
+          <a aria-label="YouTube" href="#" class="p-2 rounded-full bg-white shadow hover:shadow-md transition"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.4 3.5 12 3.5 12 3.5s-7.4 0-9.4.6A3 3 0 0 0 .5 6.2 31.6 31.6 0 0 0 0 12a31.6 31.6 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c2 .6 9.4.6 9.4.6s7.4 0 9.4-.6a3 3 0 0 0 2.1-2.1A31.6 31.6 0 0 0 24 12a31.6 31.6 0 0 0-.5-5.8zM9.8 15.5v-7L16 12l-6.2 3.5z"/></svg></a>
+          <a aria-label="WhatsApp" href="https://wa.me/5554999999999" class="p-2 rounded-full bg-white shadow hover:shadow-md transition"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.3 17.9L2 22l4.2-1.1A11 11 0 1 0 20.5 3.5zM12 20a8 8 0 0 1-4.1-1.1l-.3-.2-2.4.7.7-2.3-.2-.3A8 8 0 1 1 12 20zm4.6-5.3c-.3-.2-1.7-.8-1.9-.9s-.4-.2-.6.2c-.2.3-.7.9-.9 1.1s-.3.2-.6 0a6.5 6.5 0 0 1-1.9-1.2 7.2 7.2 0 0 1-1.3-1.6c-.1-.2 0-.3.1-.5l.4-.6c.2-.2.2-.4 0-.6l-.9-2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4a3 3 0 0 0-1 2.2c0 1.3.9 2.6 1.1 2.8.2.3 1.9 2.9 4.7 4 2.8 1.1 2.8.7 3.3.7a2.7 2.7 0 0 0 1.8-1.1c.2-.3.7-.9.8-1.2.1-.3 0-.5-.3-.7z"/></svg></a>
+        </div>
+      </div>
+
+      <div>
+        <p class="font-semibold text-slate-800 mb-3">Conteúdos</p>
+        <ul class="space-y-2 text-sm text-slate-600">
+          <li><a class="hover:text-pink-700" href="#conteudo">Sobre a autora</a></li>
+          <li><a class="hover:text-pink-700" href="#scrolly">Capítulos do livro</a></li>
+          <li><a class="hover:text-pink-700" href="#bonus">Materiais bônus</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-semibold text-slate-800 mb-3">Suporte</p>
+        <ul class="space-y-2 text-sm text-slate-600">
+          <li><a class="hover:text-pink-700" href="#faq">Perguntas frequentes</a></li>
+          <li><a class="hover:text-pink-700" href="#">Política de Privacidade</a></li>
+          <li><a class="hover:text-pink-700" href="#">Termos de Uso</a></li>
+          <li><a class="hover:text-pink-700" href="mailto:contato@leticiaweirich.com">contato@leticiaweirich.com</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-semibold text-slate-800 mb-3">Receba novidades</p>
+        <form class="grid grid-cols-1 gap-3">
+          <input type="email" placeholder="Seu e-mail" class="rounded-xl border border-pink-100 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-200" />
+          <button class="btn btn-primary w-full">Quero receber</button>
+          <p class="text-[11px] text-slate-500">Ao enviar, você concorda em receber conteúdos e comunicações sobre o livro.</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-pink-100 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p class="text-slate-600 text-sm">&copy; <span id="year"></span> Leticia Weirich. Todos os direitos reservados.</p>
+      <p class="text-slate-500 text-xs">Produzido com amor e propósito.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Sticky Buy -->
+<div id="sticky" class="sticky-bar fixed bottom-0 inset-x-0 z-40 transition-all duration-300 ease-out">
+  <div class="max-w-4xl mx-auto m-3 rounded-full px-4 py-3 flex items-center justify-between gap-3 backdrop-blur-xl bg-white/70 ring-1 ring-pink-100 shadow-[0_10px_40px_rgba(255,120,170,.22)]">
+    <div class="absolute inset-0 -z-10 pointer-events-none rounded-full bg-gradient-to-r from-pink-100/40 via-white/0 to-pink-100/40"></div>
+    <div class="flex items-center gap-3">
+      <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=200&auto=format&fit=crop" class="rounded-lg w-10 h-14 object-cover" alt="Livro"/>
+      <div class="leading-tight"><p class="text-sm font-semibold">De Dentro Para Fora</p><p class="text-xs text-slate-500">R$ 79,90 • frete rápido</p></div>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="#checkout" class="btn btn-primary text-sm shimmer" id="buySticky">Comprar</a>
+      <a href="#livro" class="text-sm text-pink-700 hover:text-pink-900 font-semibold">Detalhes</a>
+    </div>
+  </div>
+</div>
+
+<!-- OBRIGADO -->
+<div id="thanks" class="fixed inset-0 z-[70] hidden items-center justify-center">
+  <div class="absolute inset-0 bg-black/50"></div>
+  <div class="relative bg-white rounded-3xl max-w-2xl w-[92%] p-8 text-center shadow-2xl">
+    <h2 class="text-3xl font-display font-bold">Pedido recebido! 🎉</h2>
+    <p class="mt-2 text-slate-600">Você vai receber os próximos passos no seu e-mail e WhatsApp.</p>
+    <a href="/" class="btn btn-primary mt-6">Voltar ao início</a>
+  </div>
+</div>
+
+<!-- THREE + POSTPROCESSING -->
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js";
+import { EffectComposer } from "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/postprocessing/UnrealBloomPass.js";
+
+const cvs = document.getElementById('bg3d');
+const renderer = new THREE.WebGLRenderer({canvas:cvs, antialias:true, alpha:true});
+renderer.setSize(innerWidth, innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .1, 100);
+camera.position.set(0,0,7);
+
+const geo = new THREE.PlaneGeometry(12,8,120,90);
+const mat = new THREE.ShaderMaterial({
+  uniforms:{ uTime:{value:0}, uAmp:{value:1.0}, uColor:{value:new THREE.Color('#ffe3ee')} },
+  vertexShader:`
+    uniform float uTime; uniform float uAmp; varying vec2 vUv;
+    float hash(vec2 p){return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453);} 
+    float noise(vec2 p){ vec2 i=floor(p); vec2 f=fract(p); 
+      float a=hash(i), b=hash(i+vec2(1.,0.)), c=hash(i+vec2(0.,1.)), d=hash(i+vec2(1.,1.));
+      vec2 u=f*f*(3.-2.*f); return mix(a,b,u.x)+ (c-a)*u.y*(1.-u.x) + (d-b)*u.x*u.y; }
+    void main(){ vUv=uv; vec3 p=position; float n=noise(uv*2.0 + uTime*0.1); p.z += n * 0.5 * uAmp; gl_Position = projectionMatrix*modelViewMatrix*vec4(p,1.0); }
+  `,
+  fragmentShader:`varying vec2 vUv; uniform vec3 uColor; void main(){ vec3 c = mix(vec3(1.0), uColor, smoothstep(0.0,1.0,vUv.y)); gl_FragColor = vec4(c, .50);} `,
+  transparent:true, depthWrite:false
+});
+const plane = new THREE.Mesh(geo,mat); scene.add(plane);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight), .5, .7, .2);
+composer.addPass(bloom);
+
+function resize(){
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight); composer.setSize(innerWidth,innerHeight);
+}
+addEventListener('resize', resize);
+
+function loop(t){ mat.uniforms.uTime.value = t/1000; composer.render(); requestAnimationFrame(loop); }
+requestAnimationFrame(loop);
+
+window.__bg3d = {
+  tint:(hex)=> { mat.uniforms.uColor.value = new THREE.Color(hex); },
+  amp:(v)=> { mat.uniforms.uAmp.value = v; }
+};
+</script>
+
+<script>
+/* ====== BASE ====== */
+if (window.gsap) { gsap.registerPlugin(ScrollTrigger, TextPlugin); }
+const progress = document.getElementById('progress');
+addEventListener('scroll', ()=>{const h=document.documentElement;progress.style.width=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100+"%";});
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ====== MOBILE NAV ====== */
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+const iconHamb  = document.getElementById('iconHamb');
+const iconClose = document.getElementById('iconClose');
+const navBackdrop = document.getElementById('navBackdrop');
+const headerEl = document.querySelector('header');
+
+function lockBody(lock){ document.documentElement.style.overflow = lock ? 'hidden' : ''; }
+function openMenu(){
+  mobileMenu.classList.remove('hidden');
+  requestAnimationFrame(()=>{ mobileMenu.classList.remove('opacity-0','-translate-y-3'); mobileMenu.classList.add('opacity-100','translate-y-0'); });
+  navBackdrop.classList.add('show');
+  iconHamb.classList.add('hidden'); iconClose.classList.remove('hidden');
+  menuBtn.setAttribute('aria-expanded','true');
+  headerEl.classList.add('menu-open');
+  lockBody(true);
+}
+function closeMenu(){
+  mobileMenu.classList.add('opacity-0','-translate-y-3'); mobileMenu.classList.remove('opacity-100','translate-y-0');
+  setTimeout(()=> mobileMenu.classList.add('hidden'), 180);
+  navBackdrop.classList.remove('show');
+  iconClose.classList.add('hidden'); iconHamb.classList.remove('hidden');
+  menuBtn.setAttribute('aria-expanded','false');
+  headerEl.classList.remove('menu-open');
+  lockBody(false);
+}
+menuBtn?.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const open = menuBtn.getAttribute('aria-expanded') === 'true';
+  open ? closeMenu() : openMenu();
+});
+// Fecha ao clicar em QUALQUER lugar fora do painel/botão
+document.addEventListener('click', (e)=>{
+  const open = menuBtn.getAttribute('aria-expanded') === 'true';
+  if(!open) return;
+  const isInsideMenu = mobileMenu.contains(e.target);
+  const isButton = menuBtn.contains(e.target);
+  if(!isInsideMenu && !isButton) closeMenu();
+});
+navBackdrop?.addEventListener('click', closeMenu);
+addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeMenu(); });
+document.querySelectorAll('#mobileMenu a[href^="#"]').forEach(a=>{ a.addEventListener('click', closeMenu); });
+
+/* ====== LENIS ====== */
+try{
+  if(window.Lenis){
+    const lenis = new Lenis({smoothWheel:true, lerp:.09});
+    function raf(t){ lenis.raf(t); if(window.ScrollTrigger) ScrollTrigger.update(); requestAnimationFrame(raf) }
+    requestAnimationFrame(raf);
+  }
+}catch(e){ console.warn('Lenis indisponível, usando scroll nativo.'); }
+
+/* ====== PRELOADER ====== */
+addEventListener('load', ()=>{const el=document.getElementById('pre');el.style.opacity=1;setTimeout(()=>{el.style.transition='opacity .45s';el.style.opacity=0;setTimeout(()=>el.remove(),450)},350)});
+
+/* ====== COUNTDOWN ====== */
+(function startCountdown(hours=3){const end=Date.now()+hours*36e5;const el=document.getElementById('cd');const t=setInterval(()=>{const d=end-Date.now();if(d<=0){clearInterval(t);el.textContent="00:00:00";return}const h=String(Math.floor(d/36e5)).padStart(2,'0');const m=String(Math.floor((d%36e5)/6e4)).padStart(2,'0');const s=String(Math.floor((d%6e4)/1e3)).padStart(2,'0');el.textContent=`${h}:${m}:${s}`},1000)})();
+
+/* ====== Reveals + tint ====== */
+(function(){
+  var sec = document.getElementById('scrolly');
+  var shades = ['#ffe3ee','#ffd3e3','#ffc7db'];
+  var shadeIdx = 0;
+  if (typeof IntersectionObserver !== 'undefined' && sec && window.__bg3d){
+    var tintObs = new IntersectionObserver(function(entries){
+      if (entries && entries[0] && entries[0].isIntersecting){
+        shadeIdx = (shadeIdx + 1) % shades.length;
+        try { window.__bg3d.tint(shades[shadeIdx]); } catch(e){}
+      }
+    }, {threshold:0.6});
+    tintObs.observe(sec);
+  }
+
+  var nodes = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+  if (typeof IntersectionObserver === 'undefined' || nodes.length === 0){
+    for (var j=0;j<nodes.length;j++){ nodes[j].classList.add('reveal--in'); }
+    return;
+  }
+  var revObs = new IntersectionObserver(function(entries){
+    for (var i=0;i<entries.length;i++){
+      var entry = entries[i];
+      if (entry.isIntersecting){
+        entry.target.classList.add('reveal--in');
+        revObs.unobserve(entry.target);
+      }
+    }
+  }, {rootMargin:'0px 0px -10% 0px', threshold:0.12});
+  for (var k=0;k<nodes.length;k++){ revObs.observe(nodes[k]); }
+})();
+
+/* ====== STICKY BAR ====== */
+(function(){
+  var sticky = document.getElementById('sticky');
+  function stickyToggle(){
+    if (!sticky) return;
+    if (window.scrollY > 800) { sticky.classList.add('show'); }
+    else { sticky.classList.remove('show'); }
+  }
+  window.addEventListener('scroll', stickyToggle, {passive:true});
+  stickyToggle();
+
+  var footer = document.querySelector('footer');
+  if (!footer || !sticky || typeof IntersectionObserver === 'undefined') return;
+  var hideObs = new IntersectionObserver(function(entries){
+    for (var i=0;i<entries.length;i++){
+      var e = entries[i];
+      if (e.isIntersecting){
+        sticky.classList.add('opacity-0','translate-y-8','pointer-events-none');
+      } else {
+        sticky.classList.remove('opacity-0','translate-y-8','pointer-events-none');
+      }
+    }
+  }, {threshold:0.05});
+  hideObs.observe(footer);
+})();
+
+/* ====== Âncoras ====== */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click', e=>{
+    const id=a.getAttribute('href').slice(1); const el=document.getElementById(id);
+    if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); closeMenu(); }
+  });
+});
+
+/* ====== SWIPER opcional ====== */
+if (window.Swiper && document.getElementById('reviews')){
+  new Swiper('#reviews',{slidesPerView:1,spaceBetween:24,loop:true,breakpoints:{768:{slidesPerView:2},1024:{slidesPerView:3}}});
+}
+
+/* ====== HOTKEY J -> Checkout ====== */
+addEventListener('keydown', (e)=>{ if(e.key.toLowerCase()==='j'){ document.getElementById('checkout').scrollIntoView({behavior:'smooth'});} });
+
+/* ====== Checkout + Obrigado ====== */
+const form=document.getElementById('payForm'); const utmField=document.getElementById('utmField'); utmField.value=new URLSearchParams(location.search).toString();
+form?.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  try{ const data = Object.fromEntries(new FormData(form).entries()); localStorage.setItem('last_order', JSON.stringify({ts:Date.now(), ...data})); }catch(err){}
+  history.pushState({ok:true}, "", "/obrigado");
+  openThanks();
+});
+addEventListener('popstate', ()=>{ if(location.pathname==='/obrigado') openThanks(true); else closeThanks(); });
+const thanks=document.getElementById('thanks');
+function openThanks(fromPop){ thanks.classList.remove('hidden'); thanks.classList.add('flex'); if(!fromPop) setTimeout(()=>window.scrollTo({top:0,behavior:'smooth'}),50);} 
+function closeThanks(){ thanks.classList.add('hidden'); thanks.classList.remove('flex'); }
+if(location.pathname==='/obrigado'){ openThanks(true); }
+</script>
+
+</body>
+</html>
